@@ -439,7 +439,7 @@
       <strong>Preview & Export</strong>
       <div class="row" style="justify-content:flex-end">
         <button class="btn" id="btnUploadBg">Upload Background</button>
-        <button class="btn" id="btnResetBg">Reset BG</button>
+        <button class="btn" id="btnResetBg">Reset</button>
         <button class="btn primary" id="btnExport" disabled>Save Card (PNG)</button>
       </div>
     </div>
@@ -1427,13 +1427,40 @@ els.partySize.value = state.partySize;
   });
 
   els.btnResetBg.addEventListener("click", () => {
+    // Reset background
     bgBitmap = null;
     els.bgLabel.textContent = "No image selected";
     state.bgScale = 1.0;
     state.bgDx = 0;
     state.bgDy = 0;
-    els.zoom.value = 100;
-    els.zoomLabel.textContent = "100%";
+
+    // Reset all settings to defaults
+    state.partySize = 4;
+    state.partyLevel = 1;
+    state.stackCount = 1;
+    state.difficulty = "Medium";
+    state.spread = "Default";
+    state.calcMode = "Auto";
+    state.manualDefeatTotal = "";
+    state.manualOverwhelmTotal = "";
+    state.successThreshold = 3;
+
+    // Reset abilities to default (-)
+    state.abilitySlots = [
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+    ];
+
+    // Reset combat stats
+    state.damageSel = "1d6";
+    state.damageCustom = "";
+    state.range = "Melee";
+
+    // Sync UI and re-render
+    syncUIFromState();
+    buildAbilitiesUI();
     saveStateToLocalStorage();
     rerender();
   });
