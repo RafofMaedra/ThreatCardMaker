@@ -1453,9 +1453,14 @@ els.partySize.value = state.partySize;
       { selection: "", customText: "" },
     ];
 
+    // Reset threat name
+    state.monsterName = "";
+
     // Reset combat stats
     state.damageSel = "1d6";
     state.damageCustom = "";
+    state.targetsSel = "1";
+    state.targetsCustom = "";
     state.range = "Melee";
 
     // Sync UI and re-render
