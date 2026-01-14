@@ -1,0 +1,1564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Strive Threat Card Maker (Standalone)</title>
+  <style>
+    :root{
+      --bg:#0f1115;
+      --panel:#171a21;
+      --panel2:#11141a;
+      --text:#e7eaf0;
+      --muted:#aab2c0;
+      --accent:#6aa6ff;
+      --danger:#ff6a6a;
+      --ok:#7dffb2;
+      --line:#2a2f3b;
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1000px 700px at 30% -10%, rgba(106,166,255,.18), transparent 60%),
+                  radial-gradient(900px 600px at 100% 30%, rgba(125,255,178,.10), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      padding:16px 16px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      position:sticky; top:0; background:rgba(15,17,21,.92); backdrop-filter: blur(10px);
+      z-index:20;
+    }
+    header .row{
+      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      max-width:1200px; margin:0 auto;
+    }
+    h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.3px;
+      font-weight:700;
+    }
+    .badge{
+      font-size:12px; color:var(--muted);
+      padding:6px 10px; border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:14px 16px 28px;
+      display:grid;
+      grid-template-columns: 1fr 410px;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .inner{ padding:12px; }
+    .panel h2{
+      margin:0 0 10px;
+      font-size:13px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+    details{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      background:rgba(0,0,0,.14);
+      margin:10px 0;
+      overflow:hidden;
+    }
+    details > summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      user-select:none;
+      font-weight:700;
+      font-size:14px;
+    }
+    details > summary::-webkit-details-marker{display:none}
+    details[open] > summary{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.02);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      padding:12px;
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    input[type="text"], input[type="number"], select, textarea{
+      width:100%;
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+
+    /* Improve dropdown contrast in dark mode */
+    select{
+      background: rgba(0,0,0,.55);
+      color: #fff;
+    }
+    select option{
+      background: #11141a;
+      color: #fff;
+    }
+    textarea{ min-height:74px; resize:vertical; }
+    input[type="range"]{ width:100%; }
+    .row{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .row > *{ flex:1 1 auto; }
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:13px;
+    }
+    .btn.primary{
+      border-color: rgba(106,166,255,.55);
+      background: rgba(106,166,255,.18);
+    }
+    .btn.danger{
+      border-color: rgba(255,106,106,.55);
+      background: rgba(255,106,106,.16);
+    }
+    .btn:disabled{
+      opacity:.5; cursor:not-allowed;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+      margin-top:6px;
+    }
+    .ability-preview{
+      font-size:12px;
+      color:#98a3b6;
+      line-height:1.35;
+      padding-top:2px;
+      min-height: 18px;
+    }
+
+    /* Preview panel */
+    .previewTop{
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .previewTop strong{ font-size:14px; }
+    .previewWrap{ padding:12px; }
+    .canvasBox{
+      background:rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:10px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+    }
+    canvas#preview{
+      width:100%;
+      max-width:350px;
+      height:auto;
+      border-radius:10px;
+      background:white;
+      touch-action:none;
+    }
+    .kv{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+      font-family: var(--mono);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .kv span{
+      padding:6px 8px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    .notice{
+      margin:10px 0 0;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      background:rgba(0,0,0,.22);
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .notice b{ color:var(--text); }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.65);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+    .modal.show{ display:flex; }
+    .modalCard{
+      width:min(720px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 14px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .modalHead strong{ font-size:14px; }
+    .modalBody{ padding:14px; }
+    .reqList{
+      font-family: var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+      overflow:auto;
+      max-height:180px;
+      white-space:pre;
+    }
+    .statusLine{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .statusLine.ok{ color: var(--ok); }
+    .statusLine.bad{ color: var(--danger); }
+
+    .mini{
+      font-size:12px; color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1>Strive Threat Card Maker — Standalone</h1>
+    <div class="row" style="justify-content:flex-end">
+      <span class="badge" id="assetBadge">Assets: not loaded</span>
+      <button class="btn" id="btnChangeAssets">Change assets</button>
+      <button class="btn danger" id="btnClearCache">Clear cache</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Settings -->
+  <div class="panel">
+    <div class="inner">
+      <h2>Settings</h2>
+      <details open>
+        <summary>Party Configuration <span class="mini">balance numbers</span></summary>
+        <div class="grid">
+          <div class="field">
+            <div class="label">Party Size</div>
+            <input id="partySize" type="number" min="0" step="1" value="4" />
+          </div>
+          <div class="field">
+            <div class="label">Party Level</div>
+            <input id="partyLevel" type="number" min="0" step="0.5" value="5" />
+          </div>
+          <div class="field">
+            <div class="label">Threat Count (stack)</div>
+            <input id="stackCount" type="number" min="1" step="1" value="1" />
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Difficulty Settings <span class="mini">auto/manual D/O</span></summary>
+        <div class="grid">
+          <div class="field">
+            <div class="label">Difficulty</div>
+            <select id="difficulty">
+              <option>Easy</option>
+              <option selected>Medium</option>
+              <option>Hard</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="label">Spread</div>
+            <select id="spread">
+              <option selected>Default</option>
+              <option>Narrow</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="label">Calc Mode</div>
+            <select id="calcMode">
+              <option selected>Auto</option>
+              <option>Manual</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <div class="label">Defeat (manual total)</div>
+            <input id="manualDefeat" type="number" min="1" step="1" placeholder="(disabled in Auto)" />
+          </div>
+          <div class="field">
+            <div class="label">Overwhelm (manual total)</div>
+            <input id="manualOverwhelm" type="number" min="2" step="1" placeholder="(disabled in Auto)" />
+          </div>
+
+          <div class="field">
+            <div class="label">Success Threshold (2–6)</div>
+            <select id="successThreshold">
+              <option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option>
+            </select>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <div class="row">
+              <span class="badge" id="badgeD">D: —</span>
+              <span class="badge" id="badgeO">O: —</span>
+              <span class="badge" id="badgeAllD">All D: —</span>
+              <span class="badge" id="badgeAllO">All O: —</span>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Threat Information <span class="mini">title on card</span></summary>
+        <div class="grid">
+          <div class="field">
+            <div class="label">Threat Name</div>
+            <input id="monsterName" type="text" placeholder="Goblin" />
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Abilities <span class="mini">4 slots</span></summary>
+        <div class="inner" style="padding:12px">
+          <div id="abilities"></div>
+          <div class="hint">Select “Custom” to type your own ability text. Selecting “Heedless” displays Defeat as “–” on the card (like your Python version).</div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Combat Statistics <span class="mini">damage/targets/range</span></summary>
+        <div class="grid">
+          <div class="field">
+            <div class="label">Damage</div>
+            <div class="row">
+              <select id="damageSel" style="flex:0 0 170px">
+                <option value="2">2</option>
+                <option value="1d6" selected>1d6</option>
+                <option value="2d6">2d6</option>
+                <option value="3d6">3d6</option>
+                <option value="4d6">4d6</option>
+                <option value="5d6">5d6</option>
+                <option value="6d6">6d6</option>
+                <option value="Custom">Custom</option>
+              </select>
+              <input id="damageCustom" type="text" placeholder="Custom damage" disabled />
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Targets</div>
+            <div class="row">
+              <select id="targetsSel" style="flex:0 0 170px">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="Custom">Custom</option>
+              </select>
+              <input id="targetsCustom" type="text" placeholder="Custom targets" disabled />
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Range</div>
+            <select id="range">
+              <option selected>Melee</option>
+              <option>Ranged</option>
+              <option>Melee &amp; Ranged</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="panel">
+    <div class="previewTop">
+      <strong>Preview & Export</strong>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn" id="btnUploadBg">Upload Background</button>
+        <button class="btn" id="btnResetBg">Reset BG</button>
+        <button class="btn primary" id="btnExport" disabled>Save Card (PNG)</button>
+      </div>
+    </div>
+
+    <div class="previewWrap">
+      <div class="canvasBox">
+        <canvas id="preview" width="350" height="495"></canvas>
+      </div>
+
+      <div class="grid" style="margin-top:10px; padding:0">
+        <div class="field" style="grid-column: 1 / -1;">
+          <div class="label">Zoom</div>
+          <div class="row" style="gap:8px; align-items:center">
+            <input id="zoom" type="range" min="50" max="200" value="100" />
+            <span class="badge" id="zoomLabel">100%</span>
+          </div>
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <div class="label">Background image</div>
+          <div class="hint" id="bgLabel">No image selected</div>
+        </div>
+      </div>
+
+      <div class="kv">
+        <span>Drag: pan background</span>
+        <span>Export: 928×1312 PNG</span>
+        <span>Text: Times New Roman</span>
+      </div>
+
+      <div class="notice" id="offlineNote"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Asset setup modal -->
+<div class="modal" id="assetModal">
+  <div class="modalCard">
+    <div class="modalHead">
+      <strong>Load Assets (one-time)</strong>
+      <button class="btn" id="btnCloseModal">Close</button>
+    </div>
+    <div class="modalBody">
+      <div class="hint">
+        Pick the folder (or the files) that contain your templates/icons and <b>Abilities.txt</b>.
+        Once loaded, they’re cached locally, so you won’t be asked again.
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="btnPickFolder">Choose Assets Folder</button>
+        <label class="btn" style="text-align:center">
+          Choose Files
+          <input id="filePicker" type="file" multiple style="display:none"
+                 accept=".png,.txt,image/png,text/plain" />
+        </label>
+      </div>
+
+      <div class="statusLine" id="assetStatus">Waiting for selection…</div>
+
+      <div class="hint" style="margin-top:10px">Required filenames:</div>
+      <div class="reqList" id="reqList"></div>
+
+      <div class="hint" style="margin-top:10px">
+        <b>Note:</b> On iOS Safari, “Choose Assets Folder” may not be available; use “Choose Files” once instead.
+      </div>
+    </div>
+  </div>
+</div>
+
+<input id="bgPicker" type="file" accept="image/*" style="display:none" />
+
+<script>
+(() => {
+  // -------------------- constants (mirror Python) --------------------
+  const PREV_W = 350;
+  // Full-res card size (your templates are 928×1312)
+  const FALLBACK_FULL_W = 928;
+  const FALLBACK_FULL_H = 1312;
+
+  const TITLE_Y = 85;
+  const DAMAGE_POS = { x: 100, y: 105 };
+  const TARGETS_POS = { x: 177, y: 1175 };
+  const RANGE_TEXT_POS = { x: 542, y: 1175 };
+
+  const DEFEAT_CIRCLE_POS = { x: 100, y: 1203 };
+  const OVERWHELM_CIRCLE_POS = { x: 827, y: 1203 };
+
+  const RANGE_ICON_POS = { x: 398, y: 1140 };
+  const RANGE_ICON_SIZE = { w: 130, h: 130 };
+
+  const CARD_CORNER_RADIUS = 60;
+  const CARD_CORNER_INSET = 0;
+
+  const REQUIRED_FILES = [
+    "Template.png",
+    "Melee.png",
+    "Ranged.png",
+    "Melee&Ranged.png",
+    "Abilities.txt"
+  ];
+
+  // -------------------- DOM --------------------
+  const els = {
+    assetBadge: document.getElementById("assetBadge"),
+    assetModal: document.getElementById("assetModal"),
+    btnPickFolder: document.getElementById("btnPickFolder"),
+    filePicker: document.getElementById("filePicker"),
+    btnCloseModal: document.getElementById("btnCloseModal"),
+    assetStatus: document.getElementById("assetStatus"),
+    reqList: document.getElementById("reqList"),
+
+    btnChangeAssets: document.getElementById("btnChangeAssets"),
+    btnClearCache: document.getElementById("btnClearCache"),
+partySize: document.getElementById("partySize"),
+    partyLevel: document.getElementById("partyLevel"),
+    stackCount: document.getElementById("stackCount"),
+    difficulty: document.getElementById("difficulty"),
+    spread: document.getElementById("spread"),
+    calcMode: document.getElementById("calcMode"),
+    manualDefeat: document.getElementById("manualDefeat"),
+    manualOverwhelm: document.getElementById("manualOverwhelm"),
+    successThreshold: document.getElementById("successThreshold"),
+    monsterName: document.getElementById("monsterName"),
+
+    badgeD: document.getElementById("badgeD"),
+    badgeO: document.getElementById("badgeO"),
+    badgeAllD: document.getElementById("badgeAllD"),
+    badgeAllO: document.getElementById("badgeAllO"),
+
+    abilities: document.getElementById("abilities"),
+
+    damageSel: document.getElementById("damageSel"),
+    damageCustom: document.getElementById("damageCustom"),
+    targetsSel: document.getElementById("targetsSel"),
+    targetsCustom: document.getElementById("targetsCustom"),
+    range: document.getElementById("range"),
+
+    preview: document.getElementById("preview"),
+    zoom: document.getElementById("zoom"),
+    zoomLabel: document.getElementById("zoomLabel"),
+    btnUploadBg: document.getElementById("btnUploadBg"),
+    btnResetBg: document.getElementById("btnResetBg"),
+    btnExport: document.getElementById("btnExport"),
+    bgPicker: document.getElementById("bgPicker"),
+    bgLabel: document.getElementById("bgLabel"),
+
+    offlineNote: document.getElementById("offlineNote"),
+  };
+
+  els.reqList.textContent = REQUIRED_FILES.join("\n");
+
+  // -------------------- IndexedDB (assets cache) --------------------
+  const DB_NAME = "threat-card-maker";
+  const DB_VER = 1;
+
+  function openDB(){
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if(!db.objectStoreNames.contains("assets")){
+          db.createObjectStore("assets", { keyPath: "name" });
+        }
+        if(!db.objectStoreNames.contains("state")){
+          db.createObjectStore("state", { keyPath: "key" });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbPut(store, value){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, "readwrite");
+      tx.objectStore(store).put(value);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function idbGet(store, key){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, "readonly");
+      const req = tx.objectStore(store).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbGetAll(store){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, "readonly");
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbClear(store){
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, "readwrite");
+      tx.objectStore(store).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // -------------------- app state --------------------
+  const state = {
+    // config
+partySize: 4,
+    partyLevel: 5,
+    stackCount: 1,
+    difficulty: "Medium",
+    spread: "Default",
+    calcMode: "Auto",
+    manualDefeatTotal: "",
+    manualOverwhelmTotal: "",
+    successThreshold: 3,
+    monsterName: "",
+
+    // abilities
+    abilitySlots: [
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+    ],
+
+    // combat
+    damageSel: "1d6",
+    damageCustom: "",
+    targetsSel: "1",
+    targetsCustom: "",
+    range: "Melee",
+
+    // background transform (in PREVIEW pixels, like Python)
+    bgScale: 1.0,
+    bgDx: 0,
+    bgDy: 0,
+  };
+
+  function loadStateFromLocalStorage(){
+    try{
+      const raw = localStorage.getItem("tcm_state");
+      if(!raw) return;
+      const parsed = JSON.parse(raw);
+      Object.assign(state, parsed);
+      // ensure slots shape
+      if(!Array.isArray(state.abilitySlots) || state.abilitySlots.length !== 4){
+        state.abilitySlots = [
+          { selection: "", customText: "" },
+          { selection: "", customText: "" },
+          { selection: "", customText: "" },
+          { selection: "", customText: "" },
+        ];
+      }
+    }catch{}
+  }
+  function saveStateToLocalStorage(){
+    try{
+      localStorage.setItem("tcm_state", JSON.stringify(state));
+    }catch{}
+  }
+
+  // -------------------- assets in memory --------------------
+  const assets = {
+    templates: new Map(),   // name -> ImageBitmap
+    icons: new Map(),       // name -> ImageBitmap
+    abilitiesText: "",
+    abilitiesMap: new Map(), // name -> desc
+    abilityList: ["Custom"],
+    loaded: false
+  };
+
+  function setOfflineNote(){
+    const isFile = location.protocol === "file:";
+    els.offlineNote.innerHTML = isFile
+      ? "<b>Offline:</b> assets are cached locally. This page is opened from <code>file://</code>, so it can’t be installed as a PWA (service workers are blocked). If you want installable offline, host it on https (GitHub Pages/Netlify/etc)."
+      : "<b>Offline:</b> assets are cached locally. If you also want the page itself to work offline, serve it over https and add a service worker (PWA).";
+  }
+
+  // -------------------- abilities parsing (match your file style) --------------------
+  function parseAbilities(txt){
+    const lines = txt.replace(/\r\n/g, "\n").split("\n");
+    const map = new Map();
+    let name = null;
+    let buf = [];
+
+    function flush(){
+      if(name && buf.length){
+        map.set(name, buf.join(" ").trim());
+      }
+      name = null;
+      buf = [];
+    }
+
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line){
+        flush();
+        continue;
+      }
+      if(name === null){
+        name = line;
+      }else{
+        buf.push(line);
+      }
+    }
+    flush();
+
+    // Ensure Heedless exists (Python adds if missing)
+    if(!map.has("Heedless")){
+      map.set("Heedless",
+        "This creature fights with reckless abandon, ignoring opportunities that careful foes would exploit."
+      );
+    }
+
+    // Build list (Custom first)
+    const list = ["Custom", ...Array.from(map.keys()).sort((a,b)=>a.localeCompare(b))];
+    return { map, list };
+  }
+
+  function heedlessSelected(){
+    return state.abilitySlots.some(s => s.selection === "Heedless");
+  }
+
+  // -------------------- defeat/overwhelm logic (mirror Python) --------------------
+  function safeInt(v, def=0){
+    const n = parseInt(String(v).trim(), 10);
+    return Number.isFinite(n) ? n : def;
+  }
+  function safeFloat(v, def=0){
+    const n = parseFloat(String(v).trim());
+    return Number.isFinite(n) ? n : def;
+  }
+
+  function getDicePerPlayer(level){
+    if(level < 3) return 2;
+    if(level < 5) return 3;
+    if(level < 8) return 4;
+    if(level < 12) return 5;
+    return 6;
+  }
+
+  function computeDefeatOverwhelm(B, diff, spread){
+    const mult = {
+      "Easy":   [0.5, 1.0],
+      "Medium": [0.75, 1.25],
+      "Hard":   [1.0, 1.5],
+    }[diff] || [0.75, 1.25];
+
+    let dRaw = B * mult[0];
+    let oRaw = B * mult[1];
+
+    if(spread === "Narrow"){
+      oRaw = dRaw + (oRaw - dRaw) * 0.5;
+    }
+
+    const D = Math.max(1, Math.floor(dRaw));
+    const O = Math.max(D + 1, Math.floor(oRaw));
+    return { D, O };
+  }
+
+  function divideForStack(D_total, O_total, count){
+    const D = Math.max(1, Math.ceil(D_total / count));
+    let O = Math.ceil(O_total / count);
+    O = Math.max(D + 1, O);
+    return { D, O };
+  }
+
+  function getDefeatOverwhelm(){
+    const count = Math.max(1, safeInt(state.stackCount, 1));
+
+    if(state.calcMode === "Manual"){
+      const D_total = Math.max(1, safeInt(state.manualDefeatTotal, 1));
+      const O_total = Math.max(D_total + 1, safeInt(state.manualOverwhelmTotal, D_total + 1));
+      return divideForStack(D_total, O_total, count);
+    }
+
+    const level = safeFloat(state.partyLevel, 0);
+    const players = Math.max(0, safeInt(state.partySize, 0));
+    const dice = getDicePerPlayer(level);
+    const B = dice * players;
+    const base = computeDefeatOverwhelm(B, state.difficulty, state.spread);
+    return divideForStack(base.D, base.O, count);
+  }
+
+  // -------------------- rendering --------------------
+  const renderCanvas = document.createElement("canvas");
+  const rctx = renderCanvas.getContext("2d");
+  const pctx = els.preview.getContext("2d");
+
+  let bgBitmap = null; // ImageBitmap for user background
+
+  function roundedRectPath(ctx, x, y, w, h, r){
+    const rr = Math.max(0, Math.min(r, w/2, h/2));
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function drawTextWithStroke(ctx, text, x, y, font, fill, stroke, w, align="left", baseline="top"){
+    ctx.save();
+    ctx.font = font;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+
+    if(w > 0){
+      ctx.fillStyle = stroke;
+      for(let dx=-w; dx<=w; dx++){
+        for(let dy=-w; dy<=w; dy++){
+          if(dx === 0 && dy === 0) continue;
+          ctx.fillText(text, x+dx, y+dy);
+        }
+      }
+    }
+    ctx.fillStyle = fill;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  function wrapLines(ctx, text, maxWidth){
+    const words = String(text).trim().split(/\s+/);
+    const lines = [];
+    let line = "";
+    for(const w of words){
+      const test = (line ? line + " " : "") + w;
+      const width = ctx.measureText(test).width;
+      if(width <= maxWidth){
+        line = test;
+      }else{
+        if(line) lines.push(line);
+        line = w;
+      }
+    }
+    if(line) lines.push(line);
+    return lines;
+  }
+
+  function getTemplateBitmap(){
+    return assets.templates.get("Template.png") || null;
+  }
+
+  function getRangeIconBitmap(){
+    const map = {
+      "Melee": "Melee.png",
+      "Ranged": "Ranged.png",
+      "Melee & Ranged": "Melee&Ranged.png"
+    };
+    const key = map[state.range] || "Melee.png";
+    return assets.icons.get(key) || null;
+  }
+
+  function renderFull(){
+    const templateBmp = getTemplateBitmap();
+    if(!templateBmp){
+      renderCanvas.width = FALLBACK_FULL_W;
+      renderCanvas.height = FALLBACK_FULL_H;
+      rctx.clearRect(0,0,renderCanvas.width, renderCanvas.height);
+      rctx.fillStyle = "#fff";
+      rctx.fillRect(0,0,renderCanvas.width, renderCanvas.height);
+      rctx.fillStyle = "#000";
+      rctx.font = "700 18px system-ui";
+      rctx.fillText("Template not loaded", 20, 30);
+      return;
+    }
+
+    const fullW = templateBmp.width || FALLBACK_FULL_W;
+    const fullH = templateBmp.height || FALLBACK_FULL_H;
+    renderCanvas.width = fullW;
+    renderCanvas.height = fullH;
+    // Text colors (single Template.png)
+    const fillCol = "white";
+    const strokeCol = "black";
+    const strokeW = 2;
+
+    // Clear
+    rctx.clearRect(0,0,fullW,fullH);
+
+    // --- background layer (rounded clipped ONLY) ---
+    if(bgBitmap){
+      const sw = bgBitmap.width * state.bgScale;
+      const sh = bgBitmap.height * state.bgScale;
+
+      const ox = ((fullW - sw) / 2) + (state.bgDx * (fullW / PREV_W));
+      const oy = ((fullH - sh) / 2) + (state.bgDy * (fullH / (Math.round(PREV_W * fullH / fullW))));
+
+      rctx.save();
+      const inset = CARD_CORNER_INSET;
+      roundedRectPath(rctx, inset, inset, fullW - 1 - inset*2, fullH - 1 - inset*2, CARD_CORNER_RADIUS);
+      rctx.clip();
+      rctx.drawImage(bgBitmap, ox, oy, sw, sh);
+      rctx.restore();
+    }
+
+    // --- template overlay (normal) ---
+    rctx.drawImage(templateBmp, 0, 0, fullW, fullH);
+
+    // --- range icon overlay ---
+    const icon = getRangeIconBitmap();
+    if(icon){
+      rctx.drawImage(icon, RANGE_ICON_POS.x, RANGE_ICON_POS.y, RANGE_ICON_SIZE.w, RANGE_ICON_SIZE.h);
+    }
+
+    // --- compute D/O ---
+    const { D, O } = getDefeatOverwhelm();
+    const D_txt = heedlessSelected() ? "-" : String(D);
+    const userTH = safeInt(state.successThreshold, 0);
+
+    // --- fonts (match Python intent) ---
+    const titleFont = `700 70px "Times New Roman", Times, serif`;
+    const dmgFont   = `700 70px "Times New Roman", Times, serif`;
+    const textFont  = `400 27px "Times New Roman", Times, serif`;
+
+    // Title centered
+    drawTextWithStroke(rctx, state.monsterName || "", fullW/2, TITLE_Y, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
+
+    // Abilities block
+    let y = 785;
+    rctx.save();
+    rctx.font = textFont;
+    rctx.textAlign = "left";
+    rctx.textBaseline = "top";
+
+    for(let i=0;i<4;i++){
+      const slot = state.abilitySlots[i];
+      const sel = slot.selection || "";
+      const txt = (sel === "Custom")
+        ? (slot.customText || "")
+        : (assets.abilitiesMap.get(sel) || "");
+      if(txt.trim()){
+        const maxW = 785;
+        const lines = wrapLines(rctx, txt, maxW);
+        for(const ln of lines){
+          drawTextWithStroke(rctx, ln, 75, y, textFont, fillCol, strokeCol, strokeW, "left", "top");
+          y += 32; // 27px + 5 padding (close to Python)
+        }
+        y += 13;
+      }
+    }
+    rctx.restore();
+
+    // Damage
+    const dmgTxt = (state.damageSel === "Custom") ? (state.damageCustom || "") : state.damageSel;
+    drawTextWithStroke(rctx, dmgTxt, DAMAGE_POS.x, DAMAGE_POS.y, dmgFont, fillCol, strokeCol, strokeW, "center", "middle");
+
+    // Targets + Range text (top-left baseline)
+    const tgtTxt = (state.targetsSel === "Custom") ? (state.targetsCustom || "") : state.targetsSel;
+    drawTextWithStroke(rctx, `Targets: ${tgtTxt}`, TARGETS_POS.x, TARGETS_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
+    drawTextWithStroke(rctx, state.range, RANGE_TEXT_POS.x, RANGE_TEXT_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
+
+    // Defeat/Overwhelm numbers (centered in circles)
+    drawTextWithStroke(rctx, D_txt, DEFEAT_CIRCLE_POS.x, DEFEAT_CIRCLE_POS.y, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
+    drawTextWithStroke(rctx, String(O), OVERWHELM_CIRCLE_POS.x, OVERWHELM_CIRCLE_POS.y, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
+
+    // Success threshold top-right
+    drawTextWithStroke(rctx, `${userTH}+`, 835, 105, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
+  }
+
+  function renderPreview(){
+    // match Python PREV_H formula based on current full canvas aspect
+    const fullW = renderCanvas.width || FALLBACK_FULL_W;
+    const fullH = renderCanvas.height || FALLBACK_FULL_H;
+    const prevH = Math.round(PREV_W * fullH / fullW);
+    if(els.preview.height !== prevH){
+      els.preview.width = PREV_W;
+      els.preview.height = prevH;
+    }
+    pctx.clearRect(0,0,els.preview.width, els.preview.height);
+    pctx.drawImage(renderCanvas, 0, 0, PREV_W, prevH);
+  }
+
+  function rerender(){
+    if(!assets.loaded){
+      // show placeholder
+      pctx.clearRect(0,0,els.preview.width, els.preview.height);
+      pctx.fillStyle = "#fff";
+      pctx.fillRect(0,0,els.preview.width, els.preview.height);
+      pctx.fillStyle = "#111";
+      pctx.font = "700 14px system-ui";
+      pctx.fillText("Load assets to begin", 14, 24);
+      els.btnExport.disabled = true;
+      return;
+    }
+    renderFull();
+    renderPreview();
+    els.btnExport.disabled = false;
+  }
+
+  // -------------------- UI: abilities section --------------------
+  function buildAbilitiesUI(){
+    els.abilities.innerHTML = "";
+    for(let i=0;i<4;i++){
+      const slot = state.abilitySlots[i];
+
+      const wrap = document.createElement("div");
+      wrap.style.border = "1px solid rgba(255,255,255,.08)";
+      wrap.style.borderRadius = "12px";
+      wrap.style.padding = "10px";
+      wrap.style.background = "rgba(0,0,0,.18)";
+      wrap.style.marginBottom = "10px";
+
+      const row1 = document.createElement("div");
+      row1.className = "row";
+      row1.style.alignItems = "center";
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.style.flex = "0 0 auto";
+      label.textContent = `Ability ${i+1}`;
+
+      const sel = document.createElement("select");
+      sel.style.flex = "1 1 auto";
+      for(const name of assets.abilityList){
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      }
+      sel.value = slot.selection || "";
+      if(!sel.value){
+        // default blank -> Custom? (Python starts empty, list includes Custom; we’ll default to empty selection = none)
+        // Keep as blank if possible:
+        // but <select> cannot have blank unless we add it.
+      }
+
+      // Add a blank option at top (so user can clear)
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = "—";
+      sel.insertBefore(blank, sel.firstChild);
+      sel.value = slot.selection || "";
+
+      const custom = document.createElement("textarea");
+      custom.placeholder = "Custom ability text…";
+      custom.value = slot.customText || "";
+      custom.disabled = !(slot.selection === "Custom");
+      custom.style.marginTop = "8px";
+
+      const preview = document.createElement("div");
+      preview.className = "ability-preview";
+      preview.textContent = (slot.selection && slot.selection !== "Custom")
+        ? (assets.abilitiesMap.get(slot.selection) || "")
+        : "";
+
+      sel.addEventListener("change", () => {
+        slot.selection = sel.value;
+        if(slot.selection !== "Custom"){
+          custom.disabled = true;
+        }else{
+          custom.disabled = false;
+        }
+        preview.textContent = (slot.selection && slot.selection !== "Custom")
+          ? (assets.abilitiesMap.get(slot.selection) || "")
+          : "";
+        updateDOBadges();
+        saveStateToLocalStorage();
+        rerender();
+      });
+
+      custom.addEventListener("input", () => {
+        slot.customText = custom.value;
+        saveStateToLocalStorage();
+        rerender();
+      });
+
+      row1.appendChild(label);
+      row1.appendChild(sel);
+
+      wrap.appendChild(row1);
+      wrap.appendChild(custom);
+      wrap.appendChild(preview);
+
+      els.abilities.appendChild(wrap);
+    }
+  }
+
+  // -------------------- assets loading helpers --------------------
+  async function blobToImageBitmap(blob){
+    // createImageBitmap is fast and good for canvases
+    return await createImageBitmap(blob);
+  }
+
+  async function tryAutoFetchAssets(){
+    // Only works when served over http(s). Browsers block reading neighbouring files from file:// without user gesture.
+    if(location.protocol === "file:") return false;
+
+    const bases = ["./", "./assets/"];
+    for(const base of bases){
+      const fileMap = new Map();
+      let allOk = true;
+
+      for(const name of REQUIRED_FILES){
+        try{
+          const res = await fetch(base + name, { cache: "no-store" });
+          if(!res.ok){ allOk = false; break; }
+          const blob = await res.blob();
+          const type = blob.type || (name.toLowerCase().endsWith(".txt") ? "text/plain" : "image/png");
+          const file = new File([blob], name, { type });
+          fileMap.set(name, file);
+        }catch{
+          allOk = false;
+          break;
+        }
+      }
+
+      if(allOk){
+        await cacheAssetsFromFileMap(fileMap);
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  async function loadAssetsFromCache(){
+    const all = await idbGetAll("assets");
+    if(!all.length) return false;
+
+    const byName = new Map(all.map(x => [x.name, x.blob]));
+    for(const req of REQUIRED_FILES){
+      if(!byName.has(req)) return false;
+    }
+
+    // Load into memory
+    assets.templates.clear();
+    assets.icons.clear();
+
+    for(const name of ["Template.png"]){
+      const bmp = await blobToImageBitmap(byName.get(name));
+      assets.templates.set(name, bmp);
+    }
+    for(const name of ["Melee.png","Ranged.png","Melee&Ranged.png"]){
+      const bmp = await blobToImageBitmap(byName.get(name));
+      assets.icons.set(name, bmp);
+    }
+
+    assets.abilitiesText = await byName.get("Abilities.txt").text();
+    const parsed = parseAbilities(assets.abilitiesText);
+    assets.abilitiesMap = parsed.map;
+    assets.abilityList = parsed.list;
+
+    assets.loaded = true;
+    els.assetBadge.textContent = "Assets: loaded (cached)";
+    els.assetBadge.style.borderColor = "rgba(125,255,178,.35)";
+    return true;
+  }
+
+  async function cacheAssetsFromFileMap(fileMap){
+    // fileMap: Map(name -> File)
+    const missing = REQUIRED_FILES.filter(n => !fileMap.has(n));
+    if(missing.length){
+      els.assetStatus.className = "statusLine bad";
+      els.assetStatus.textContent = "Missing: " + missing.join(", ");
+      throw new Error("Missing required files");
+    }
+
+    // Store blobs in IDB
+    for(const name of REQUIRED_FILES){
+      const file = fileMap.get(name);
+      await idbPut("assets", { name, blob: file, savedAt: Date.now() });
+    }
+
+    // Load from cache (single source of truth)
+    await loadAssetsFromCache();
+  }
+
+  async function pickFilesOnce(files){
+    const map = new Map();
+    for(const f of files){
+      map.set(f.name, f);
+    }
+    els.assetStatus.className = "statusLine";
+    els.assetStatus.textContent = "Reading files and caching…";
+    await cacheAssetsFromFileMap(map);
+    els.assetStatus.className = "statusLine ok";
+    els.assetStatus.textContent = "Assets cached. You’re good to go.";
+    hideAssetsModal();
+  }
+
+  async function pickFolderOnce(){
+    if(!("showDirectoryPicker" in window)){
+      els.assetStatus.className = "statusLine bad";
+      els.assetStatus.textContent = "Folder picker not supported in this browser. Use “Choose Files”.";
+      return;
+    }
+
+    els.assetStatus.className = "statusLine";
+    els.assetStatus.textContent = "Opening folder picker…";
+
+    const dir = await window.showDirectoryPicker({ mode:"read" });
+
+    // Try direct, then ./assets subfolder
+    async function tryDir(dh){
+      const fileMap = new Map();
+      for(const name of REQUIRED_FILES){
+        try{
+          const fh = await dh.getFileHandle(name);
+          const file = await fh.getFile();
+          fileMap.set(name, file);
+        }catch{
+          return null;
+        }
+      }
+      return fileMap;
+    }
+
+    let fileMap = await tryDir(dir);
+    if(!fileMap){
+      // try assets subfolder
+      try{
+        const assetsDir = await dir.getDirectoryHandle("assets");
+        fileMap = await tryDir(assetsDir);
+      }catch{}
+    }
+
+    if(!fileMap){
+      els.assetStatus.className = "statusLine bad";
+      els.assetStatus.textContent = "Couldn’t find required files in that folder (or ./assets). Try again, or use “Choose Files”.";
+      return;
+    }
+
+    els.assetStatus.className = "statusLine";
+    els.assetStatus.textContent = "Reading folder contents and caching…";
+
+    await cacheAssetsFromFileMap(fileMap);
+    els.assetStatus.className = "statusLine ok";
+    els.assetStatus.textContent = "Assets cached. You’re good to go.";
+    hideAssetsModal();
+  }
+
+  function showAssetsModal(){
+    els.assetModal.classList.add("show");
+  }
+  function hideAssetsModal(){
+    els.assetModal.classList.remove("show");
+  }
+
+  // -------------------- bind UI -> state --------------------
+  function syncUIFromState(){
+els.partySize.value = state.partySize;
+    els.partyLevel.value = state.partyLevel;
+    els.stackCount.value = state.stackCount;
+    els.difficulty.value = state.difficulty;
+    els.spread.value = state.spread;
+    els.calcMode.value = state.calcMode;
+    els.manualDefeat.value = state.manualDefeatTotal;
+    els.manualOverwhelm.value = state.manualOverwhelmTotal;
+    els.successThreshold.value = String(state.successThreshold);
+    els.monsterName.value = state.monsterName;
+
+    els.damageSel.value = state.damageSel;
+    els.damageCustom.value = state.damageCustom;
+    els.targetsSel.value = state.targetsSel;
+    els.targetsCustom.value = state.targetsCustom;
+    els.range.value = state.range;
+
+    els.zoom.value = Math.round(state.bgScale * 100);
+    els.zoomLabel.textContent = `${Math.round(state.bgScale * 100)}%`;
+
+    syncCustomEnables();
+  }
+
+  function syncCustomEnables(){
+    els.damageCustom.disabled = (els.damageSel.value !== "Custom");
+    els.targetsCustom.disabled = (els.targetsSel.value !== "Custom");
+
+    const manual = (els.calcMode.value === "Manual");
+    els.manualDefeat.disabled = !manual;
+    els.manualOverwhelm.disabled = !manual;
+  }
+
+  function updateDOBadges(){
+    const { D, O } = getDefeatOverwhelm();
+    const count = Math.max(1, safeInt(state.stackCount, 1));
+    els.badgeD.textContent = heedlessSelected() ? "D: –" : `D: ${D}`;
+    els.badgeO.textContent = `O: ${O}`;
+    els.badgeAllD.textContent = `All D: ${D * count}`;
+    els.badgeAllO.textContent = `All O: ${O * count}`;
+  }
+
+  function bindCommon(el, key, parser=(v)=>v){
+    el.addEventListener("input", () => {
+      state[key] = parser(el.value);
+      syncCustomEnables();
+      updateDOBadges();
+      saveStateToLocalStorage();
+      rerender();
+    });
+    el.addEventListener("change", () => {
+      state[key] = parser(el.value);
+      syncCustomEnables();
+      updateDOBadges();
+      saveStateToLocalStorage();
+      rerender();
+    });
+  }
+
+  // -------------------- background upload + pan/zoom --------------------
+  let dragging = false;
+  let lastPt = null;
+
+  function canvasPointFromEvent(e){
+    const rect = els.preview.getBoundingClientRect();
+    const px = (e.clientX - rect.left) * (els.preview.width / rect.width);
+    const py = (e.clientY - rect.top) * (els.preview.height / rect.height);
+    return { x: px, y: py };
+  }
+
+  els.preview.addEventListener("pointerdown", (e) => {
+    if(!bgBitmap) return;
+    dragging = true;
+    els.preview.setPointerCapture(e.pointerId);
+    lastPt = canvasPointFromEvent(e);
+  });
+
+  els.preview.addEventListener("pointermove", (e) => {
+    if(!dragging || !bgBitmap) return;
+    const pt = canvasPointFromEvent(e);
+    const dx = pt.x - lastPt.x;
+    const dy = pt.y - lastPt.y;
+    state.bgDx += dx;
+    state.bgDy += dy;
+    lastPt = pt;
+    saveStateToLocalStorage();
+    rerender();
+  });
+
+  function endDrag(){
+    dragging = false;
+    lastPt = null;
+  }
+  els.preview.addEventListener("pointerup", endDrag);
+  els.preview.addEventListener("pointercancel", endDrag);
+
+  els.zoom.addEventListener("input", () => {
+    const v = safeInt(els.zoom.value, 100);
+    state.bgScale = v / 100;
+    els.zoomLabel.textContent = `${v}%`;
+    saveStateToLocalStorage();
+    rerender();
+  });
+
+  els.btnUploadBg.addEventListener("click", () => els.bgPicker.click());
+  els.bgPicker.addEventListener("change", async () => {
+    const file = els.bgPicker.files && els.bgPicker.files[0];
+    if(!file) return;
+    try{
+      bgBitmap = await createImageBitmap(file);
+      els.bgLabel.textContent = file.name;
+      state.bgScale = 1.0;
+      state.bgDx = 0;
+      state.bgDy = 0;
+      els.zoom.value = 100;
+      els.zoomLabel.textContent = "100%";
+      saveStateToLocalStorage();
+      rerender();
+    }catch(err){
+      alert("Failed to load background image.");
+      console.error(err);
+    }
+  });
+
+  els.btnResetBg.addEventListener("click", () => {
+    bgBitmap = null;
+    els.bgLabel.textContent = "No image selected";
+    state.bgScale = 1.0;
+    state.bgDx = 0;
+    state.bgDy = 0;
+    els.zoom.value = 100;
+    els.zoomLabel.textContent = "100%";
+    saveStateToLocalStorage();
+    rerender();
+  });
+
+  // -------------------- export --------------------
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }
+
+  els.btnExport.addEventListener("click", async () => {
+    if(!assets.loaded) return;
+    renderFull();
+    renderCanvas.toBlob((blob) => {
+      if(!blob) return;
+      const base = (state.monsterName && state.monsterName.trim()) ? state.monsterName.trim() : "Threat";
+      const safe = base.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_");
+      downloadBlob(blob, `${safe || "Threat"}_Card.png`);
+    }, "image/png");
+  });
+
+  // -------------------- bind settings --------------------
+bindCommon(els.partySize, "partySize", v => safeInt(v, 0));
+  bindCommon(els.partyLevel, "partyLevel", v => safeFloat(v, 0));
+  bindCommon(els.stackCount, "stackCount", v => Math.max(1, safeInt(v, 1)));
+  bindCommon(els.difficulty, "difficulty", v => v);
+  bindCommon(els.spread, "spread", v => v);
+  bindCommon(els.calcMode, "calcMode", v => v);
+  bindCommon(els.manualDefeat, "manualDefeatTotal", v => v);
+  bindCommon(els.manualOverwhelm, "manualOverwhelmTotal", v => v);
+  bindCommon(els.successThreshold, "successThreshold", v => safeInt(v, 3));
+  bindCommon(els.monsterName, "monsterName", v => v);
+
+  bindCommon(els.damageSel, "damageSel", v => v);
+  bindCommon(els.damageCustom, "damageCustom", v => v);
+  bindCommon(els.targetsSel, "targetsSel", v => v);
+  bindCommon(els.targetsCustom, "targetsCustom", v => v);
+  bindCommon(els.range, "range", v => v);
+
+  els.damageSel.addEventListener("change", () => {
+    els.damageCustom.disabled = (els.damageSel.value !== "Custom");
+  });
+  els.targetsSel.addEventListener("change", () => {
+    els.targetsCustom.disabled = (els.targetsSel.value !== "Custom");
+  });
+  els.calcMode.addEventListener("change", () => {
+    syncCustomEnables();
+  });
+
+  // -------------------- assets modal controls --------------------
+  els.btnCloseModal.addEventListener("click", hideAssetsModal);
+  els.btnPickFolder.addEventListener("click", () => pickFolderOnce().catch(err => {
+    console.error(err);
+    els.assetStatus.className = "statusLine bad";
+    els.assetStatus.textContent = "Folder load failed. Try “Choose Files”.";
+  }));
+  els.filePicker.addEventListener("change", () => {
+    const files = els.filePicker.files ? Array.from(els.filePicker.files) : [];
+    if(!files.length) return;
+    pickFilesOnce(files).catch(err => {
+      console.error(err);
+      // status already set
+    });
+  });
+
+  els.btnChangeAssets.addEventListener("click", () => {
+    els.assetStatus.className = "statusLine";
+    els.assetStatus.textContent = "Waiting for selection…";
+    showAssetsModal();
+  });
+
+  els.btnClearCache.addEventListener("click", async () => {
+    const ok = confirm("Clear cached assets + saved settings? You will need to select assets again.");
+    if(!ok) return;
+    await idbClear("assets");
+    localStorage.removeItem("tcm_state");
+    assets.loaded = false;
+    els.assetBadge.textContent = "Assets: not loaded";
+    els.assetBadge.style.borderColor = "rgba(255,255,255,.10)";
+    rerender();
+    showAssetsModal();
+  });
+
+  // -------------------- init --------------------
+  async function init(){
+
+    setOfflineNote();
+    loadStateFromLocalStorage();
+    syncUIFromState();
+
+    // If cache is good, load assets silently.
+    const ok = await loadAssetsFromCache();
+    if(ok){
+      buildAbilitiesUI();
+      updateDOBadges();
+      rerender();
+      return;
+    }
+
+    // If served over http(s), try to auto-load assets from the same folder (or ./assets) before asking the user.
+    const autoOk = await tryAutoFetchAssets();
+    if(autoOk){
+      buildAbilitiesUI();
+      updateDOBadges();
+      rerender();
+      return;
+    }
+
+    // Not cached -> show modal
+    els.assetBadge.textContent = "Assets: not loaded";
+    showAssetsModal();
+    rerender();
+
+  }
+
+  // When assets become loaded, rebuild abilities UI
+  const origLoadAssetsFromCache = loadAssetsFromCache;
+  loadAssetsFromCache = async function(){
+    const ok = await origLoadAssetsFromCache();
+    if(ok){
+      buildAbilitiesUI();
+      updateDOBadges();
+      rerender();
+    }
+    return ok;
+  };
+
+  init().catch(err => {
+    console.error(err);
+    showAssetsModal();
+  });
+
+})();
+</script>
+</body>
+</html>
