@@ -439,7 +439,7 @@
       <strong>Preview & Export</strong>
       <div class="row" style="justify-content:flex-end">
         <button class="btn" id="btnUploadBg">Upload Background</button>
-        <button class="btn" id="btnResetBg">Reset BG</button>
+        <button class="btn" id="btnResetBg">Reset</button>
         <button class="btn primary" id="btnExport" disabled>Save Card (PNG)</button>
       </div>
     </div>
@@ -1019,6 +1019,20 @@ partySize: 4,
     }
     pctx.clearRect(0,0,els.preview.width, els.preview.height);
     pctx.drawImage(renderCanvas, 0, 0, PREV_W, prevH);
+
+    // Token circle overlay (preview only - shows where token app will crop)
+    const circleTopPercent = 0.135;
+    const circleBottomPercent = 0.55;
+    const circleDiameter = (circleBottomPercent - circleTopPercent) * prevH;
+    const circleRadius = circleDiameter / 2;
+    const circleCenterX = PREV_W / 2;
+    const circleCenterY = (circleTopPercent * prevH) + circleRadius;
+
+    pctx.beginPath();
+    pctx.arc(circleCenterX, circleCenterY, circleRadius, 0, 2 * Math.PI);
+    pctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    pctx.lineWidth = 2;
+    pctx.stroke();
   }
 
   function rerender(){
@@ -1413,13 +1427,45 @@ els.partySize.value = state.partySize;
   });
 
   els.btnResetBg.addEventListener("click", () => {
+    // Reset background
     bgBitmap = null;
     els.bgLabel.textContent = "No image selected";
     state.bgScale = 1.0;
     state.bgDx = 0;
     state.bgDy = 0;
-    els.zoom.value = 100;
-    els.zoomLabel.textContent = "100%";
+
+    // Reset all settings to defaults
+    state.partySize = 4;
+    state.partyLevel = 1;
+    state.stackCount = 1;
+    state.difficulty = "Medium";
+    state.spread = "Default";
+    state.calcMode = "Auto";
+    state.manualDefeatTotal = "";
+    state.manualOverwhelmTotal = "";
+    state.successThreshold = 3;
+
+    // Reset abilities to default (-)
+    state.abilitySlots = [
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+      { selection: "", customText: "" },
+    ];
+
+    // Reset threat name
+    state.monsterName = "";
+
+    // Reset combat stats
+    state.damageSel = "1d6";
+    state.damageCustom = "";
+    state.targetsSel = "1";
+    state.targetsCustom = "";
+    state.range = "Melee";
+
+    // Sync UI and re-render
+    syncUIFromState();
+    buildAbilitiesUI();
     saveStateToLocalStorage();
     rerender();
   });
