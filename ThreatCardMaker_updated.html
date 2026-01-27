@@ -420,12 +420,17 @@
           </div>
 
           <div class="field">
-            <div class="label">Range</div>
-            <select id="range">
-              <option selected>Melee</option>
-              <option>Ranged</option>
-              <option>Melee &amp; Ranged</option>
-            </select>
+            <div class="label">Type</div>
+            <div class="row">
+              <select id="range" style="flex:0 0 170px">
+                <option selected>Melee</option>
+                <option>Ranged</option>
+                <option>Melee &amp; Ranged</option>
+                <option>Investigation</option>
+                <option value="Custom">Custom</option>
+              </select>
+              <input id="rangeCustom" type="text" placeholder="Custom type" disabled />
+            </div>
           </div>
         </div>
       </details>
@@ -537,6 +542,7 @@
     "Melee.png",
     "Ranged.png",
     "Melee&Ranged.png",
+    "Investigation.png",
     "Abilities.txt"
   ];
 
@@ -575,6 +581,7 @@ partySize: document.getElementById("partySize"),
     targetsSel: document.getElementById("targetsSel"),
     targetsCustom: document.getElementById("targetsCustom"),
     range: document.getElementById("range"),
+    rangeCustom: document.getElementById("rangeCustom"),
 
     preview: document.getElementById("preview"),
     zoom: document.getElementById("zoom"),
@@ -679,6 +686,7 @@ partySize: 4,
     targetsSel: "1",
     targetsCustom: "",
     range: "Melee",
+    rangeCustom: "",
 
     // background transform (in PREVIEW pixels, like Python)
     bgScale: 1.0,
@@ -896,8 +904,11 @@ partySize: 4,
     const map = {
       "Melee": "Melee.png",
       "Ranged": "Ranged.png",
-      "Melee & Ranged": "Melee&Ranged.png"
+      "Melee & Ranged": "Melee&Ranged.png",
+      "Investigation": "Investigation.png"
     };
+    // Custom type has no icon
+    if(state.range === "Custom") return null;
     const key = map[state.range] || "Melee.png";
     return assets.icons.get(key) || null;
   }
@@ -998,7 +1009,8 @@ partySize: 4,
     // Targets + Range text (top-left baseline)
     const tgtTxt = (state.targetsSel === "Custom") ? (state.targetsCustom || "") : state.targetsSel;
     drawTextWithStroke(rctx, `Targets: ${tgtTxt}`, TARGETS_POS.x, TARGETS_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
-    drawTextWithStroke(rctx, state.range, RANGE_TEXT_POS.x, RANGE_TEXT_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
+    const rangeTxt = (state.range === "Custom") ? (state.rangeCustom || "") : state.range;
+    drawTextWithStroke(rctx, rangeTxt, RANGE_TEXT_POS.x, RANGE_TEXT_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
 
     // Defeat/Overwhelm numbers (centered in circles)
     drawTextWithStroke(rctx, D_txt, DEFEAT_CIRCLE_POS.x, DEFEAT_CIRCLE_POS.y, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
@@ -1195,7 +1207,7 @@ partySize: 4,
       const bmp = await blobToImageBitmap(byName.get(name));
       assets.templates.set(name, bmp);
     }
-    for(const name of ["Melee.png","Ranged.png","Melee&Ranged.png"]){
+    for(const name of ["Melee.png","Ranged.png","Melee&Ranged.png","Investigation.png"]){
       const bmp = await blobToImageBitmap(byName.get(name));
       assets.icons.set(name, bmp);
     }
@@ -1319,6 +1331,7 @@ els.partySize.value = state.partySize;
     els.targetsSel.value = state.targetsSel;
     els.targetsCustom.value = state.targetsCustom;
     els.range.value = state.range;
+    els.rangeCustom.value = state.rangeCustom;
 
     els.zoom.value = Math.round(state.bgScale * 100);
     els.zoomLabel.textContent = `${Math.round(state.bgScale * 100)}%`;
@@ -1329,6 +1342,7 @@ els.partySize.value = state.partySize;
   function syncCustomEnables(){
     els.damageCustom.disabled = (els.damageSel.value !== "Custom");
     els.targetsCustom.disabled = (els.targetsSel.value !== "Custom");
+    els.rangeCustom.disabled = (els.range.value !== "Custom");
 
     const manual = (els.calcMode.value === "Manual");
     els.manualDefeat.disabled = !manual;
@@ -1462,6 +1476,7 @@ els.partySize.value = state.partySize;
     state.targetsSel = "1";
     state.targetsCustom = "";
     state.range = "Melee";
+    state.rangeCustom = "";
 
     // Sync UI and re-render
     syncUIFromState();
@@ -1510,12 +1525,16 @@ bindCommon(els.partySize, "partySize", v => safeInt(v, 0));
   bindCommon(els.targetsSel, "targetsSel", v => v);
   bindCommon(els.targetsCustom, "targetsCustom", v => v);
   bindCommon(els.range, "range", v => v);
+  bindCommon(els.rangeCustom, "rangeCustom", v => v);
 
   els.damageSel.addEventListener("change", () => {
     els.damageCustom.disabled = (els.damageSel.value !== "Custom");
   });
   els.targetsSel.addEventListener("change", () => {
     els.targetsCustom.disabled = (els.targetsSel.value !== "Custom");
+  });
+  els.range.addEventListener("change", () => {
+    els.rangeCustom.disabled = (els.range.value !== "Custom");
   });
   els.calcMode.addEventListener("change", () => {
     syncCustomEnables();
