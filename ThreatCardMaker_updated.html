@@ -527,6 +527,7 @@
   const DAMAGE_POS = { x: 100, y: 105 };
   const TARGETS_POS = { x: 177, y: 1175 };
   const RANGE_TEXT_POS = { x: 542, y: 1175 };
+  const CONTROL_TEXT_POS = { x: 542, y: 1225 };
 
   const DEFEAT_CIRCLE_POS = { x: 100, y: 1203 };
   const OVERWHELM_CIRCLE_POS = { x: 827, y: 1203 };
@@ -723,6 +724,7 @@ partySize: 4,
     icons: new Map(),       // name -> ImageBitmap
     abilitiesText: "",
     abilitiesMap: new Map(), // name -> desc
+    abilitiesMeta: new Map(), // name -> { baseName, modifier, invalidControl }
     abilityList: ["Custom"],
     loaded: false
   };
@@ -743,7 +745,13 @@ partySize: 4,
 
     function flush(){
       if(name && buf.length){
-        map.set(name, buf.join(" ").trim());
+        const parsed = parseAbilityHeader(name);
+        map.set(name, {
+          desc: buf.join(" ").trim(),
+          baseName: parsed.baseName,
+          modifier: parsed.modifier,
+          invalidControl: parsed.invalidControl,
+        });
       }
       name = null;
       buf = [];
@@ -765,9 +773,12 @@ partySize: 4,
 
     // Ensure Heedless exists (Python adds if missing)
     if(!map.has("Heedless")){
-      map.set("Heedless",
-        "This creature fights with reckless abandon, ignoring opportunities that careful foes would exploit."
-      );
+      map.set("Heedless", {
+        desc: "This creature fights with reckless abandon, ignoring opportunities that careful foes would exploit.",
+        baseName: "Heedless",
+        modifier: 0,
+        invalidControl: false,
+      });
     }
 
     // Build list (Custom first)
@@ -776,7 +787,76 @@ partySize: 4,
   }
 
   function heedlessSelected(){
-    return state.abilitySlots.some(s => s.selection === "Heedless");
+    return state.abilitySlots.some((s) => {
+      const sel = s.selection || "";
+      if(sel === "Heedless") return true;
+      const meta = assets.abilitiesMeta.get(sel);
+      return Boolean(meta && meta.baseName === "Heedless");
+    });
+  }
+
+  function parseAbilityHeader(header){
+    const trimmed = String(header || "").trim();
+    const match = trimmed.match(/^(.*?)(?:\s+([+-]\d+|\+-))?$/);
+    const baseName = (match?.[1] || trimmed).trim();
+    const rawMod = (match?.[2] || "").trim();
+    if(rawMod === "+-"){
+      return { baseName, modifier: 0, invalidControl: true };
+    }
+    if(/^[+-]\d+$/.test(rawMod)){
+      return { baseName, modifier: parseInt(rawMod, 10), invalidControl: false };
+    }
+    return { baseName, modifier: 0, invalidControl: false };
+  }
+
+  function parseCustomAbilityControl(text){
+    const raw = String(text || "");
+    if(/\+-/.test(raw)) return { modifier: 0, invalidControl: true };
+    const match = raw.match(/([+-]\d+)/);
+    if(match){
+      return { modifier: parseInt(match[1], 10), invalidControl: false };
+    }
+    return { modifier: 0, invalidControl: false };
+  }
+
+  function getDamageDiceCount(){
+    const text = (state.damageSel === "Custom") ? (state.damageCustom || "") : state.damageSel;
+    const match = String(text).match(/(-?\d+)\s*d6/i);
+    const parsed = match ? parseInt(match[1], 10) : NaN;
+    if(!Number.isFinite(parsed) || parsed < 1) return 1;
+    return parsed;
+  }
+
+  function computeControlValue(overwhelmTier){
+    let abilityValue = 0;
+    let invalidControl = false;
+
+    for(const slot of state.abilitySlots){
+      const sel = slot.selection || "";
+      if(!sel) continue;
+
+      if(sel === "Custom"){
+        const custom = parseCustomAbilityControl(slot.customText);
+        abilityValue += custom.modifier;
+        if(custom.invalidControl) invalidControl = true;
+        continue;
+      }
+
+      const meta = assets.abilitiesMeta.get(sel);
+      if(meta){
+        abilityValue += meta.modifier || 0;
+        if(meta.invalidControl) invalidControl = true;
+      }
+    }
+
+    if(invalidControl){
+      return { valid: false, text: "Control: —" };
+    }
+
+    const damageDice = getDamageDiceCount();
+    const value = ((overwhelmTier + abilityValue) / 2) + damageDice;
+    const display = Number.isInteger(value) ? String(value) : value.toFixed(1);
+    return { valid: true, text: `Control: ${display}` };
   }
 
   // -------------------- defeat/overwhelm logic (mirror Python) --------------------
@@ -989,7 +1069,7 @@ partySize: 4,
       const sel = slot.selection || "";
       const txt = (sel === "Custom")
         ? (slot.customText || "")
-        : (assets.abilitiesMap.get(sel) || "");
+        : (assets.abilitiesMap.get(sel)?.desc || "");
       if(txt.trim()){
         const maxW = 785;
         const lines = wrapLines(rctx, txt, maxW);
@@ -1011,6 +1091,8 @@ partySize: 4,
     drawTextWithStroke(rctx, `Targets: ${tgtTxt}`, TARGETS_POS.x, TARGETS_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
     const rangeTxt = (state.range === "Custom") ? (state.rangeCustom || "") : state.range;
     drawTextWithStroke(rctx, rangeTxt, RANGE_TEXT_POS.x, RANGE_TEXT_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
+    const control = computeControlValue(O);
+    drawTextWithStroke(rctx, control.text, CONTROL_TEXT_POS.x, CONTROL_TEXT_POS.y, textFont, fillCol, strokeCol, strokeW, "left", "top");
 
     // Defeat/Overwhelm numbers (centered in circles)
     drawTextWithStroke(rctx, D_txt, DEFEAT_CIRCLE_POS.x, DEFEAT_CIRCLE_POS.y, titleFont, fillCol, strokeCol, strokeW, "center", "middle");
@@ -1117,7 +1199,7 @@ partySize: 4,
       const preview = document.createElement("div");
       preview.className = "ability-preview";
       preview.textContent = (slot.selection && slot.selection !== "Custom")
-        ? (assets.abilitiesMap.get(slot.selection) || "")
+        ? (assets.abilitiesMap.get(slot.selection)?.desc || "")
         : "";
 
       sel.addEventListener("change", () => {
@@ -1128,7 +1210,7 @@ partySize: 4,
           custom.disabled = false;
         }
         preview.textContent = (slot.selection && slot.selection !== "Custom")
-          ? (assets.abilitiesMap.get(slot.selection) || "")
+          ? (assets.abilitiesMap.get(slot.selection)?.desc || "")
           : "";
         updateDOBadges();
         saveStateToLocalStorage();
@@ -1215,6 +1297,7 @@ partySize: 4,
     assets.abilitiesText = await byName.get("Abilities.txt").text();
     const parsed = parseAbilities(assets.abilitiesText);
     assets.abilitiesMap = parsed.map;
+    assets.abilitiesMeta = new Map(Array.from(parsed.map.entries()).map(([k, v]) => [k, { baseName: v.baseName, modifier: v.modifier, invalidControl: v.invalidControl }]));
     assets.abilityList = parsed.list;
 
     assets.loaded = true;
