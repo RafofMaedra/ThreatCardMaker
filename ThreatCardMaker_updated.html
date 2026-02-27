@@ -276,6 +276,23 @@
     .mini{
       font-size:12px; color:var(--muted);
     }
+
+    .custom-control-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:8px;
+    }
+    .custom-control-row .btn{
+      flex:0 0 auto;
+      padding:6px 10px;
+      font-size:12px;
+    }
+    .custom-control-row select{
+      flex:0 0 90px;
+      padding:6px 8px;
+      font-size:12px;
+    }
   </style>
 </head>
 <body>
@@ -527,7 +544,7 @@
   const DAMAGE_POS = { x: 100, y: 105 };
   const TARGETS_POS = { x: 177, y: 1175 };
   const RANGE_TEXT_POS = { x: 542, y: 1175 };
-  const CONTROL_TEXT_POS = { x: 542, y: 1225 };
+  const CONTROL_TEXT_POS = { x: 542, y: 1235 };
 
   const DEFEAT_CIRCLE_POS = { x: 100, y: 1203 };
   const OVERWHELM_CIRCLE_POS = { x: 827, y: 1203 };
@@ -675,10 +692,10 @@ partySize: 4,
 
     // abilities
     abilitySlots: [
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
     ],
 
     // combat
@@ -704,11 +721,17 @@ partySize: 4,
       // ensure slots shape
       if(!Array.isArray(state.abilitySlots) || state.abilitySlots.length !== 4){
         state.abilitySlots = [
-          { selection: "", customText: "" },
-          { selection: "", customText: "" },
-          { selection: "", customText: "" },
-          { selection: "", customText: "" },
+          { selection: "", customText: "", customControlMod: "" },
+          { selection: "", customText: "", customControlMod: "" },
+          { selection: "", customText: "", customControlMod: "" },
+          { selection: "", customText: "", customControlMod: "" },
         ];
+      }else{
+        state.abilitySlots = state.abilitySlots.map((slot) => ({
+          selection: slot?.selection || "",
+          customText: slot?.customText || "",
+          customControlMod: (slot?.customControlMod ?? "").toString(),
+        }));
       }
     }catch{}
   }
@@ -819,6 +842,17 @@ partySize: 4,
     return { modifier: 0, invalidControl: false };
   }
 
+  function parseCustomControlModValue(rawValue, fallbackText){
+    const raw = String(rawValue ?? "").trim();
+    if(raw === "") return { modifier: 1, invalidControl: false };
+    if(raw === "+-") return { modifier: 0, invalidControl: true };
+    if(/^[+-]?\d+$/.test(raw)){
+      const parsed = parseInt(raw, 10);
+      return { modifier: parsed, invalidControl: false };
+    }
+    return parseCustomAbilityControl(fallbackText);
+  }
+
   function getDamageDiceCount(){
     const text = (state.damageSel === "Custom") ? (state.damageCustom || "") : state.damageSel;
     const match = String(text).match(/(-?\d+)\s*d6/i);
@@ -836,7 +870,7 @@ partySize: 4,
       if(!sel) continue;
 
       if(sel === "Custom"){
-        const custom = parseCustomAbilityControl(slot.customText);
+        const custom = parseCustomControlModValue(slot.customControlMod, slot.customText);
         abilityValue += custom.modifier;
         if(custom.invalidControl) invalidControl = true;
         continue;
@@ -855,7 +889,7 @@ partySize: 4,
 
     const damageDice = getDamageDiceCount();
     const value = ((overwhelmTier + abilityValue) / 2) + damageDice;
-    const display = Number.isInteger(value) ? String(value) : value.toFixed(1);
+    const display = String(Math.ceil(value));
     return { valid: true, text: `Control: ${display}` };
   }
 
@@ -1196,6 +1230,28 @@ partySize: 4,
       custom.disabled = !(slot.selection === "Custom");
       custom.style.marginTop = "8px";
 
+      const customControlRow = document.createElement("div");
+      customControlRow.className = "custom-control-row";
+
+      const customControlBtn = document.createElement("button");
+      customControlBtn.type = "button";
+      customControlBtn.className = "btn";
+      customControlBtn.textContent = "Control Mod";
+
+      const customControlSelect = document.createElement("select");
+      const customModOptions = ["-5", "-4", "-3", "-2", "-1", "+0", "+1", "+2", "+3", "+4", "+5", "+-"];
+      for(const modValue of customModOptions){
+        const opt = document.createElement("option");
+        opt.value = modValue;
+        opt.textContent = modValue;
+        customControlSelect.appendChild(opt);
+      }
+      const selectedMod = (slot.customControlMod ?? "").toString();
+      customControlSelect.value = customModOptions.includes(selectedMod) ? selectedMod : "+0";
+
+      customControlRow.style.display = (slot.selection === "Custom") ? "flex" : "none";
+      customControlSelect.style.display = "none";
+
       const preview = document.createElement("div");
       preview.className = "ability-preview";
       preview.textContent = (slot.selection && slot.selection !== "Custom")
@@ -1205,14 +1261,29 @@ partySize: 4,
       sel.addEventListener("change", () => {
         slot.selection = sel.value;
         if(slot.selection !== "Custom"){
+          customControlRow.style.display = "none";
+          customControlSelect.style.display = "none";
+        }
+        if(slot.selection !== "Custom"){
           custom.disabled = true;
         }else{
           custom.disabled = false;
+          customControlRow.style.display = "flex";
         }
         preview.textContent = (slot.selection && slot.selection !== "Custom")
           ? (assets.abilitiesMap.get(slot.selection)?.desc || "")
           : "";
         updateDOBadges();
+        saveStateToLocalStorage();
+        rerender();
+      });
+
+      customControlBtn.addEventListener("click", () => {
+        customControlSelect.style.display = (customControlSelect.style.display === "none") ? "block" : "none";
+      });
+
+      customControlSelect.addEventListener("change", () => {
+        slot.customControlMod = customControlSelect.value;
         saveStateToLocalStorage();
         rerender();
       });
@@ -1228,6 +1299,9 @@ partySize: 4,
 
       wrap.appendChild(row1);
       wrap.appendChild(custom);
+      customControlRow.appendChild(customControlBtn);
+      customControlRow.appendChild(customControlSelect);
+      wrap.appendChild(customControlRow);
       wrap.appendChild(preview);
 
       els.abilities.appendChild(wrap);
@@ -1544,10 +1618,10 @@ els.partySize.value = state.partySize;
 
     // Reset abilities to default (-)
     state.abilitySlots = [
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
-      { selection: "", customText: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
+      { selection: "", customText: "", customControlMod: "" },
     ];
 
     // Reset threat name
@@ -1580,15 +1654,60 @@ els.partySize.value = state.partySize;
     setTimeout(()=>URL.revokeObjectURL(url), 1500);
   }
 
+  function canvasToBlob(canvas, type="image/png"){
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), type);
+    });
+  }
+
+  function createTokenCanvasFromRender(){
+    const fullW = renderCanvas.width || FALLBACK_FULL_W;
+    const fullH = renderCanvas.height || FALLBACK_FULL_H;
+
+    const circleTopPercent = 0.135;
+    const circleBottomPercent = 0.55;
+    const diameter = (circleBottomPercent - circleTopPercent) * fullH;
+    const radius = diameter / 2;
+    const centerX = fullW / 2;
+    const centerY = (circleTopPercent * fullH) + radius;
+
+    const tokenCanvas = document.createElement("canvas");
+    tokenCanvas.width = Math.round(diameter);
+    tokenCanvas.height = Math.round(diameter);
+    const tctx = tokenCanvas.getContext("2d");
+
+    tctx.clearRect(0, 0, tokenCanvas.width, tokenCanvas.height);
+    tctx.save();
+    tctx.beginPath();
+    tctx.arc(tokenCanvas.width / 2, tokenCanvas.height / 2, radius, 0, Math.PI * 2);
+    tctx.closePath();
+    tctx.clip();
+
+    const srcX = centerX - radius;
+    const srcY = centerY - radius;
+    tctx.drawImage(renderCanvas, srcX, srcY, diameter, diameter, 0, 0, tokenCanvas.width, tokenCanvas.height);
+    tctx.restore();
+
+    return tokenCanvas;
+  }
+
   els.btnExport.addEventListener("click", async () => {
     if(!assets.loaded) return;
     renderFull();
-    renderCanvas.toBlob((blob) => {
-      if(!blob) return;
-      const base = (state.monsterName && state.monsterName.trim()) ? state.monsterName.trim() : "Threat";
-      const safe = base.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_");
-      downloadBlob(blob, `${safe || "Threat"}_Card.png`);
-    }, "image/png");
+
+    const base = (state.monsterName && state.monsterName.trim()) ? state.monsterName.trim() : "Threat";
+    const safe = base.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_") || "Threat";
+
+    const cardBlob = await canvasToBlob(renderCanvas, "image/png");
+    if(cardBlob){
+      downloadBlob(cardBlob, `${safe}_Card.png`);
+    }
+
+    const tokenCanvas = createTokenCanvasFromRender();
+    const tokenBlob = await canvasToBlob(tokenCanvas, "image/png");
+    if(tokenBlob){
+      downloadBlob(tokenBlob, `${safe}_Token.png`);
+    }
   });
 
   // -------------------- bind settings --------------------
