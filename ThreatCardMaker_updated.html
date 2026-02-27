@@ -888,7 +888,7 @@ partySize: 4,
     }
 
     const damageDice = getDamageDiceCount();
-    const value = ((overwhelmTier + abilityValue) / 2) + damageDice;
+    const value = (overwhelmTier / 2) + abilityValue + damageDice - 1;
     const display = String(Math.ceil(value));
     return { valid: true, text: `Control: ${display}` };
   }
