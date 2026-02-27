@@ -1,215 +1,228 @@
 None
 
 
-Acidic Blood
+Acidic Blood +1
 Acidic Blood: When a PC assigns successes to this threat while in Touch range, that PC loses 2 Grit.
 
-Ambusher
+Ambusher +1
 Ambusher: Unless spotted beforehand by an Effective observational check against this threat’s Success Threshold, characters are Surprised when it initiates combat.
 
-Armoured (2)
+Armoured (2) +1
 Armoured: This Threat is unaffected by checks and successes less potent than Effective.
 
-Armoured (3)
+Armoured (3) +2
 Armoured: This Threat is unaffected by checks and successes less potent than Forceful.
 
-Anti-magic
+Anti-magic +1
 Anti-magic: Within Short range, magic checks require an additional success to achieve the desired potency.
 
-Arcane Defense
+Arcane Defense +2
 Arcane Defense: Within Short range, magic checks affecting this threat require two additional success to achieve the desired potency.
 
-Arcanist
+Arcanist +1
 Arcanist: Instead of dealing damage, this threat can wield magic to majorly impact the combat at a forceful potency.
 
-Berserker
+Berserker +1
 Berserker: Even if this threat is Overwhelmed, it still deals half of its damage (rounded up).
 
-Bound
+Besiege +1
+Besiege: Instead of dealing damage, this threat forces open a gate or doorway.
+
+Bound -1
 Bound: If conjured, the conjurer can command the threat at no focus cost, can use the threat's senses as if they are its own, and can communicate by taking command of it's mouth, even at beyond distance. If the threat is defeated, its conjurer takes 1 damage to their focus. A conjurer can only be bound to one threat at a time.
 
-Conjurer
+Conjurer +2
 Conjurer: Instead of dealing damage, this threat can summon an elemental to fight at its side.
 
-Cowardly
+Cowardly -1
 Cowardly: If at least 1 success has been assigned against this threat this round, it attempts to flee instead of dealing damage—unless an allied leader or at least 3 other allies are in Short range.
 
-Crush
+Crew +-
+Crew: This threat deals double successes against other threats. If this threat would be defeated, instead of removing it from play, replace it with several lesser threats.
+
+Crush +1
 Crush: A creature Restrained by this threat (can't move away) loses 2d6 Grit at the start of its turn.
 
-Dark Incantation
+Dark Incantation +2
 Dark Incantation: Instead of dealing damage, this threat advances a dark ritual. If it isn’t Overwhelmed within 3 rounds, the ritual completes and triggers a Devastating/Apocalyptic effect.
 
-Death Wave
+Death Wave +1
 Death Wave: When this threat is Defeated (not Overwhelmed), each PC in Touch range loses 1d6 Grit.
 
 Enrage
 Enrage: This threat's damage increases by 1d6 for each round of combat.
 
-Escape Artist
+Escape Artist +1
 Escape Artist: At the end of each round, if this threat isn’t Overwhelmed and isn’t restrained (pinned, trapped, magically bound, etc.), it escapes.
 
-Ethereal
+Ethereal +1
 Ethereal: Non-magical actions cannot affect this threat unless it is anchored in the physical world. A PC may Anchor it with a suitable Major Impact action (Effective potency) until the end of the next round.
 
-Fearsome Presence
+Fearsome Presence +1
 Fearsome Presence: At the start of your turn, if within Short range, make an Effective potency Mind check against this threat’s Success Threshold; on failure, you can’t Push your rolls this turn.
 
-Fire Immunity
+Fire Immunity +1
 Fire Immunity: This threat ignores successes dealt with fire.
 
-Fire Vulnerability
+Fire Vulnerability -1
 Fire Vulnerability: Attacking this threat with fire grants an additional success.
 
-Flame Aura
+Flame Aura +1
 Flame Aura: When you assign successes to this threat while in Touch range, you lose 1d6 Grit.
 
-Flaming Breath 2d6
+Flaming Breath 2d6 +2
 Flaming Breath: Unless surprised, this threat opens the combat by dealing 2d6 damage against all creatures in Short range, unless they succeed on a relevant check at Effective potency.
 
-Flaming Breath 3d6
+Flaming Breath 3d6 +3
 Flaming Breath: Unless surprised, this threat opens the combat by dealing 3d6 damage against all creatures in Short range, unless they succeed on a relevant check at Forceful potency.
 
-Flying
+Flying +1
 Flying: Cannot be targeted by non-ranged checks unless this threat is grounded. A PC may ground it with a suitable Major Impact action (Effective) until the end of the round.
 
-Forest's Protection
+Focus Fire +3
+Focus Fire: Instead of dealing damage to multiple targets, this threat deals its damage three times to a single target. This can only be used when there are no enemies in touch range of this threat.
+
+Forest's Protection +2
 Forest's Protection: Checks to Major Impact this threat require two additional success to achieve the desired potency.
 
-Foul
+Foul +1
 Foul: At the start of combat, each PC in Short range makes a Competent Mind check against this threat’s Success Threshold; on failure, lose 1 Focus.
 
-Foul 2
+Foul 2 +2
 Foul 2: At the start of your turn, while in Short range, make a Competent Mind check against this threat’s Success Threshold; on failure, lose 1 Focus.
 
-Grapple & Pin
+Grapple & Pin +1
 Grapple & Pin: Instead of dealing damage, this threat attempts to Pin a creature in Touch range. The target makes an Effective Body check against this threat's Success Threshold; on failure they are Pinned (can't move or act except in attempts to break free) until they succeed on a Forceful Body check against this threat's Success Threshold at the start of their turn.
 
-Grappler
-Grappler: When this threat deals damage to you in Touch range, you become Restrained (can't move away) until the end of your next turn unless you succeed on a Competent Body check against this threat's Success Threshold.
+Grappler +1
+Grappler: When this threat deals damage to you in Touch range, you become held (can't move away) until the end of your next turn unless you succeed on a Competent Body check against this threat's Success Threshold.
 
-Grappler 2
+Grappler 2 +2
 Grappler 2: Instead of dealing damage, this threat attempts to Restrain its target(s). Each target makes a Forceful Body check against this threat's Success Threshold; on failure they are Restrained (can't move away) until they succeed on an Effective Body check against this threat's Success Threshold at the start of their turn.
 
-Grappler All
+Grappler All +3
 Grappler All: Instead of dealing damage, this threat attempts to Restrain every PC in Touch range. Each target makes an Effective Body check against this threat's Success Threshold; on failure they are Restrained (can't move away) until they succeed on an Effective Body check against this threat's Success Threshold at the start of their turn.
 
-Group
-Group: If this threat is part of a stack of 3 or more threats, it can use all of its non-damaging abilities in addition to dealing half of its damage to each of its targets.
-
-Heedless
+Heedless +2
 Heedless: This threat has no Defeat Tier and must be Overwhelmed to be defeated.
 
-Horde
-Horde: This threat can use all of its non-damaging abilities and still deals half of its damage to each of its targets.
-
-Hurl
+Hurl +1
 Hurl: Instead of dealing damage in melee, this threat deals its damage to one target up to Far range.
 
-Hypnotic
+Hypnotic +1
 Hypnotic: At the start of your turn in Short range, make an Effective Mind check against this threat’s Success Threshold; on failure, you’re Stunned until the end of your turn. Once you succeed, you are immune to this ability for the rest of the scene.
 
-Ice Immunity
+Ice Immunity +1
 Ice Immunity: This threat ignores successes dealt with ice.
 
-Ice Vulnerability
+Ice Vulnerability -1
 Ice Vulnerability: Attacking this threat with ice grants an additional success.
 
-Ice-bite
+Ice-bite +0
 Ice-bite: Damage from this threat leaves the skin feeling cold and numb for days. If left untreated for several days, it turns into frostbite.
 
-Illusory Doubles
+Illusory Doubles +2
 Illusory Doubles: This threat has a number of illusions equal to its success threshold. When targeting this threat, the players roll 1d6. If the number is below the threat's Success Threshold, and has not been rolled already against this threat, they strike an illusion instead.
 
-Indulgent
+Indulgent -1
 Indulgent: So long as it isn't disturbed, this threat may let others pass without taking notice.
 
-Lightning Immunity
+Investigation +-
+Investigation: For every 2 successes, discover a new fact or lead. Characters will make a maximum of 1 check each. Further checks will require significant time or additional resources, which will result in consequences...
+
+Lightning Immunity +1
 Lightning Immunity: This threat ignores successes dealt with lightning.
 
-Lightning Vulnerability
+Lightning Vulnerability -1
 Lightning Vulnerability: Attacking this threat with lightning grants an additional success.
 
-Meat Shield
+Meat Shield +1
 Meat Shield: If this threat has allies in touch range, the first success dealt against it is dealt to an ally instead.
 
-Mental Drain
+Mental Drain +1
 Mental Drain: Whenever a PC within Short range makes a magic check, they lose 1 Focus.
 
-Mind-breaker
+Mind-breaker +1
 Mind-breaker: This threat deals damage to Focus instead of Grit.
 
-Poisonous
+Poisonous +0
 Poisonous: If a player takes damage from this threat, they take another instance of that damage after an hour.
 
-Poisonous 1
+Poisonous 1 +1
 Poisonous 1: If a player takes damage from this threat, they are Poisoned. At the end of their turn, they lose 1 Grit until they succeed a Competent Body check (Threshold 4) or receive treatment.
 
-Potent Poison
+Potent Poison +2
 Potent Poison: If a player takes damage from this threat, they are Poisoned. At the end of their turn, they lose 1d6 Grit until they succeed an Effective Body check (Threshold 4) or receive treatment.
 
-Power-words
+Power-words +1
 Power-words: Instead of dealing damage, this threat speaks a Word at a target in Short range. The target makes an Effective Mind check against this threat's Success Threshold; on failure they suffer a Forceful-tier effect appropriate to the Word (GM call) until the end of their next turn.
 
-Pursuer
+Pursuer +1
 Pursuer: An additional two successes are required to flee from this threat.
 
-Reassembling
-Reassembling: Unless this threat's remains are burned and scattered, it shortly reassembles, all successes removed.
 
-Reflective Hide
+Reassembling +1
+Reassembling: Unless this threat's remains are burned or otherwise destroyed, it shortly reassembles, all successes removed.
+
+Reflective Hide +1
 Reflective Hide: When you assign three or more successes to this threat from a single check, you take 1d6 damage to your Grit.
 
-Regeneration
+Regeneration +3
 Regeneration: At the end of each round, remove all accumulated successes from this threat.
 
-Regeneration Numerical
+Regeneration Numerical +1
 Regeneration Numerical: At the end of each round, remove accumulated successes equal to this threat’s Success Threshold.
 
-Second Stage
+Rot Aura +1
+Rot Aura: Within short range of this threat, potions and magic that heal Grit have their effect reduced by 1/2.
+
+Second Stage +4
 Second Stage: When this threat would be defeated, its second stage is revealed.
 
-Second Stage Strive
+Second Stage Strive +3
 Second Stage Strive: When this threat would be defeated, its second stage is revealed, and each player regains a Strive Die.
 
-Shielded
+Shielded +1
 Shielded: When a check would assign successes to this threat, reduce the assigned successes by 1.
 
-Slippery
+Slippery +1
 Slippery: Any attempt to restrain, pin, or otherwise immobilise this threat requires an additional success.
 
-Slow
+Slow -1
 Slow: Defend & Flee checks to escape this threat are set to Competent (1 success), unless the GM rules otherwise.
 
-Smother
+Smother +0
 Smother: Instead of dealing damage, this threat smothers all light sources in Short range, until relit.
 
-Squeeze
-Squeeze: A creature Restrained by this threat (can't move away) loses 1d6 Grit at the start of its turn.
+Squeeze +1
+Squeeze: A creature held by this threat (can't move away) loses 1d6 Grit at the start of its turn.
 
-Stone Skin
+Stone Skin +1
 Stone Skin: Non-magical checks treat this threat's Success Threshold as 5 (even if it is normally lower).
 
-Suppressing Shot
-Suppressing Shot: Characters within Far range of this Threat take immediately take 1d6 damage to their Grit when they push their rolls.
+Suppressing Shot +1
+Suppressing Shot: The first target to push a roll within far range of this threat immediately takes 1d6 damage.
 
-Sword-master
+Sword-master +1
 Sword-master: When you Push a Fight roll against this threat while in Touch range, you immediately lose 1d6 Grit.
 
-Teamwork
-Teamwork: This threat immediately deals 1d6 damage to touch range targets that attack a nearby allied threat.
+Teamwork +1
+Teamwork: Once per round, this threat immediately deals 1d6 damage to touch range targets that attack a nearby allied threat.
 
-Teleport Short Range
+Teleport Short Range +1
 Teleport Short Range: At the end of each round, if this threat isn't Overwhelmed and isn't restrained/anchored, it teleports away up to Short range.
 
-Teleport Beyond
+Teleport Beyond +2
 Teleport Beyond: At the end of each round, if this threat isn't Overwhelmed and isn't restrained/anchored, it teleports away up to Beyond range.
 
-Volley
+Undying +1
+Undying: Unless it's head is destroyed or separated from its body, this threat shortly revives, with all successes removed.
+
+Volley +1
 Volley: This threat deals half of its damage (rounded up) to 2 targets in Short range.
 
-Water Immunity
+Water Immunity +1
 Water Immunity: This threat ignores successes dealt with water.
 
-Water Vulnerability
+Water Vulnerability -1
 Water Vulnerability: Attacking this threat with water grants an additional success.
