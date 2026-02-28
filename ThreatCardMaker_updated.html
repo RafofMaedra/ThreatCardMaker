@@ -368,7 +368,7 @@
           <div class="field">
             <div class="label">Success Threshold (2–6)</div>
             <select id="successThreshold">
-              <option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option>
+              <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
             </select>
           </div>
 
@@ -687,7 +687,7 @@ partySize: 4,
     calcMode: "Auto",
     manualDefeatTotal: "",
     manualOverwhelmTotal: "",
-    successThreshold: 3,
+    successThreshold: 4,
     monsterName: "",
 
     // abilities
@@ -861,6 +861,13 @@ partySize: 4,
     return parsed;
   }
 
+  function getSuccessThresholdControlMod(){
+    const threshold = safeInt(state.successThreshold, 4);
+    if(threshold <= 4) return threshold - 4;
+    if(threshold === 5) return 1;
+    return 4;
+  }
+
   function computeControlValue(overwhelmTier){
     let abilityValue = 0;
     let invalidControl = false;
@@ -888,7 +895,8 @@ partySize: 4,
     }
 
     const damageDice = getDamageDiceCount();
-    const value = (overwhelmTier / 2) + abilityValue + damageDice - 1;
+    const thresholdMod = getSuccessThresholdControlMod();
+    const value = (overwhelmTier / 2) + abilityValue + damageDice - 1 + thresholdMod;
     const display = String(Math.ceil(value));
     return { valid: true, text: `Control: ${display}` };
   }
@@ -1614,7 +1622,7 @@ els.partySize.value = state.partySize;
     state.calcMode = "Auto";
     state.manualDefeatTotal = "";
     state.manualOverwhelmTotal = "";
-    state.successThreshold = 3;
+    state.successThreshold = 4;
 
     // Reset abilities to default (-)
     state.abilitySlots = [
@@ -1719,7 +1727,7 @@ bindCommon(els.partySize, "partySize", v => safeInt(v, 0));
   bindCommon(els.calcMode, "calcMode", v => v);
   bindCommon(els.manualDefeat, "manualDefeatTotal", v => v);
   bindCommon(els.manualOverwhelm, "manualOverwhelmTotal", v => v);
-  bindCommon(els.successThreshold, "successThreshold", v => safeInt(v, 3));
+  bindCommon(els.successThreshold, "successThreshold", v => safeInt(v, 4));
   bindCommon(els.monsterName, "monsterName", v => v);
 
   bindCommon(els.damageSel, "damageSel", v => v);
